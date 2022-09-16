@@ -11,18 +11,22 @@
                 error: function (response) {
                     console.error(response);
                 }
-            }
+            },
+            jsonProperty: "Data"
         };
         params = $.extend(true, defaultOptions, params);
         if (!params.ajax?.url) {
             throw new Error("Url missing");
         }
-        let loadingGif = Object.assign(document.createElement("img"), {
-            src: params.loadingGif,
-            alt: "Loading gif",
-            style: "justify-self: center;",
-            id: "loadingGif"
-        });
+        let loadingGif;
+        if (typeof params.loadingGif === "string") {
+            loadingGif = Object.assign(document.createElement("img"), {
+                src: params.loadingGif,
+                alt: "Loading gif",
+                style: "justify-self:center;margin:auto;",
+                id: "loadingGif"
+            });
+        }
         return this.each(function () {
             const appendTarget = $(params.target) ?? $(this);
             const scrollTarget = $(this);
@@ -56,7 +60,9 @@
                     ...(typeof (params.ajax.data) === 'function' ? params.ajax.data(target.page) : params.ajax.data)
                 },
                 beforeSend: function (response) {
-                    target.append(loadingGif);
+                    if (loadingGif) {
+                        target.append(loadingGif);
+                    }
                     if (params.beforeSend && typeof (params.beforeSend) === "function") {
                         params.beforeSend(response);
                     }
@@ -76,7 +82,9 @@
                     }
                 },
                 complete: function (response) {
-                    target.find(loadingGif).remove();
+                    if (loadingGif) {
+                        target.find(loadingGif).remove();
+                    }
                     if (params.complete && typeof (params.complete) === "function") {
                         params.complete(response);
                     }
